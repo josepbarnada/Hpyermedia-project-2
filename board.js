@@ -1,19 +1,29 @@
 // A difficulty is stored as a dictionary, which has 3 main parts:
 // - size: The size of the board as a NxN board
+// - exit: The coordinates of the exit
 // - cars: The different cars of the board,
+//
+// The exit should be a coordinate pair inside the board,
+// if the first car manages to reach said coordinates it completes the level
 //
 // Cars are stored as dictionaries with the following values:
 // - type: Orientation of the car h/v
 // - pos: The x y position of the top left most part of the car
 // - size: The size of the car
 // - color: The color of the car
+//
+// The first car is the one that needs to reach the exit.
 const EASY = {
   size: 7,
+  exit: {
+    x: 6,
+    y: 2,
+  },
   cars: [
     {
       type: "h",
       pos: {
-        x: 4,
+        x: 0,
         y: 2,
       },
       size: 2,
@@ -22,7 +32,7 @@ const EASY = {
     {
       type: "v",
       pos: {
-        x: 2,
+        x: 3,
         y: 1,
       },
       size: 3,
@@ -37,6 +47,10 @@ const game_state = {
   board_size: 0,
   cars: [],
   board: [],
+  finish: {
+    x: 0,
+    y: 0,
+  },
 };
 
 const drag_state = {
@@ -57,23 +71,41 @@ const drag_state = {
 // Creates a board of size nxn
 function createBoard() {
   const n = game_state.board_size;
-  const parent = document.getElementById("board");
-  parent.style.gridTemplateColumns = `repeat(${n}, ${CELL_SIZE}px)`;
+  const board = document.getElementById("board");
 
   // Delete all childs
-  parent.replaceChildren();
+  board.replaceChildren();
 
-  for (i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++) {
     game_state.board.push([]);
 
-    for (j = 0; j < n; j++) {
+    const row = document.createElement("div");
+    row.classList.add("row");
+    board.appendChild(row);
+
+    for (let j = 0; j < n; j++) {
       game_state.board[i].push(0);
 
       const cell = document.createElement("div");
       cell.classList.add("cell");
-      board.appendChild(cell);
+      row.appendChild(cell);
     }
   }
+
+  // Create the exit
+
+  const exit = document.createElement("div");
+  exit.id = "exit";
+
+  if (game_state.cars[0].type == "h") {
+    exit.style.left = `${game_state.finish.x * CELL_SIZE + CELL_SIZE / 2}px`;
+    exit.style.top = `${game_state.finish.y * CELL_SIZE}px`;
+  } else if (game_state.cars[1].type == "v") {
+    exit.style.top = `${game_state.finish.y * CELL_SIZE + CELL_SIZE / 2}px`;
+    exit.style.left = `${game_state.finish.x * CELL_SIZE}px`;
+  }
+
+  board.appendChild(exit);
 }
 
 // Updates the game state on the client.
@@ -81,13 +113,37 @@ function createBoard() {
 function updateGameState() {
   const board = document.getElementById("board");
 
-  for (i = 0; i < board_state.length; i++) {
-    for (j = 0; j < board_state[i].length; j++) {
+  for (let i = 0; i < board_state.length; i++) {
+    for (let j = 0; j < board_state[i].length; j++) {
       if (board_state[i][j] != 0) {
         const cell = board.childNodes[i].childNodes[j];
       }
     }
   }
+}
+
+// Checks if the player has won
+function check_for_victory() {
+  let car = game_state.cars[0];
+
+  let inFinish = false;
+  for (let s = 0; s < car.size; s++) {
+    if (car.pos.x + s == game_state.finish.x) {
+      inFinish = true;
+      break;
+    }
+  }
+  if (!inFinish) return false;
+
+  inFinish = false;
+  for (let s = 0; s < car.size; s++) {
+    if (car.pos.y + s == game_state.finish.y) {
+      inFinish = true;
+      break;
+    }
+  }
+  if (!inFinish) return false;
+  alert("ONE");
 }
 
 // function to cap the drag to prevent going off the board or passing over other cars
@@ -101,44 +157,94 @@ function cap_drag(drag, orientation, carIndex) {
     drag = (game_state.board_size - car.size) * CELL_SIZE;
   }
 
-  if (drag_state.hard_stop) {
-    let cell_stop_forward =
-      board[car.pos.y][
-      Math.floor(drag_state.hard_stop_x / CELL_SIZE) + car.size
-      ];
-    let cell_stop_backwards =
-      board[car.pos.y][Math.floor(drag_state.hard_stop_x / CELL_SIZE) - 1];
+  if (orientation == "h") {
+    if (drag_state.hard_stop) {
+      let cell_stop_forward =
+        board[car.pos.y][
+        Math.floor(drag_state.hard_stop_x / CELL_SIZE) + car.size
+        ];
+      let cell_stop_backwards =
+        board[car.pos.y][Math.floor(drag_state.hard_stop_x / CELL_SIZE) - 1];
 
-    if (drag > drag_state.hard_stop_x && cell_stop_forward == 0) {
-      drag_state.hard_stop = false;
-    } else if (drag < drag_state.hard_stop_x && cell_stop_backwards == 0) {
-      drag_state.hard_stop = false;
-    } else {
+      if (drag > drag_state.hard_stop_x && cell_stop_forward == 0) {
+        drag_state.hard_stop = false;
+      } else if (drag < drag_state.hard_stop_x && cell_stop_backwards == 0) {
+        drag_state.hard_stop = false;
+      } else {
+        drag = drag_state.hard_stop_x;
+      }
+    }
+
+    let cell_forward =
+      board[car.pos.y][Math.floor(drag / CELL_SIZE) + car.size];
+    let cell_backwars = board[car.pos.y][Math.floor(drag / CELL_SIZE)];
+    if (
+      cell_forward != undefined &&
+      cell_forward != 0 &&
+      cell_forward != carIndex + 1
+    ) {
+      if (!drag_state.hard_stop) {
+        drag_state.hard_stop = true;
+        drag_state.hard_stop_x = Math.floor(drag / CELL_SIZE) * CELL_SIZE;
+      }
+
       drag = drag_state.hard_stop_x;
+    } else if (
+      cell_backwars != undefined &&
+      cell_backwars != 0 &&
+      cell_backwars != carIndex + 1
+    ) {
+      if (!drag_state.hard_stop) {
+        drag_state.hard_stop = true;
+        drag_state.hard_stop_x = Math.floor(drag / CELL_SIZE + 1) * CELL_SIZE;
+      }
     }
-  }
+  } else if (orientation == "v") {
+    if (drag_state.hard_stop) {
+      let cell_stop_forward =
+        board[Math.floor(drag_state.hard_stop_y / CELL_SIZE) + car.size][
+        car.pos.x
+        ];
+      let column = Math.floor(drag_state.hard_stop_y / CELL_SIZE) - 1;
+      if (column < 0) column = 0;
+      let cell_stop_backwards = board[column][car.pos.x];
 
-  let cell_forward = board[car.pos.y][Math.floor(drag / CELL_SIZE) + car.size];
-  let cell_backwars = board[car.pos.y][Math.floor(drag / CELL_SIZE)];
-  if (
-    cell_forward != undefined &&
-    cell_forward != 0 &&
-    cell_forward != carIndex + 1
-  ) {
-    if (!drag_state.hard_stop) {
-      drag_state.hard_stop = true;
-      drag_state.hard_stop_x = Math.floor(drag / CELL_SIZE) * CELL_SIZE;
+      if (drag > drag_state.hard_stop_y && cell_stop_forward == 0) {
+        drag_state.hard_stop = false;
+      } else if (drag < drag_state.hard_stop_y && cell_stop_backwards == 0) {
+        drag_state.hard_stop = false;
+      } else {
+        drag = drag_state.hard_stop_y;
+      }
     }
 
-    drag = drag_state.hard_stop_x;
-  } else if (
-    cell_backwars != undefined &&
-    cell_backwars != 0 &&
-    cell_backwars != carIndex + 1
-  ) {
-    if (!drag_state.hard_stop) {
-      drag_state.hard_stop = true;
-      drag_state.hard_stop_x = Math.floor(drag / CELL_SIZE + 1) * CELL_SIZE;
+    let column = Math.floor(drag / CELL_SIZE) + car.size;
+    if (column >= game_state.board_size) column = game_state.board_size - 1;
+    let cell_forward = board[column][car.pos.x];
+
+    column = Math.floor(drag / CELL_SIZE);
+    if (column < 0) column = 0;
+    let cell_backwars = board[column][car.pos.x];
+    if (
+      cell_forward != undefined &&
+      cell_forward != 0 &&
+      cell_forward != carIndex + 1
+    ) {
+      if (!drag_state.hard_stop) {
+        drag_state.hard_stop = true;
+        drag_state.hard_stop_y = Math.floor(drag / CELL_SIZE) * CELL_SIZE;
+      }
+
+      drag = drag_state.hard_stop_y;
+    } else if (
+      cell_backwars != undefined &&
+      cell_backwars != 0 &&
+      cell_backwars != carIndex + 1
+    ) {
+      if (!drag_state.hard_stop) {
+        drag_state.hard_stop = true;
+        drag_state.hard_stop_y = Math.floor(drag / CELL_SIZE + 1) * CELL_SIZE;
+      }
     }
   }
 
@@ -150,10 +256,10 @@ function drawCars() {
   const carList = game_state.cars;
   const board = document.getElementById("board");
 
-  for (i = 0; i < carList.length; i++) {
+  for (let i = 0; i < carList.length; i++) {
     const carData = carList[i];
 
-    for (s = 0; s < carData.size; s++) {
+    for (let s = 0; s < carData.size; s++) {
       if (carData.type == "h") {
         game_state.board[carData.pos.y][carData.pos.x + s] = i + 1;
       } else if (carData.type == "v") {
@@ -218,11 +324,11 @@ function drawCars() {
         drag_x = cap_drag(drag_x, "h", index);
         let drag_cell_x = Math.round(drag_x / CELL_SIZE);
 
-        for (s = 0; s < carData.size; s++) {
+        for (let s = 0; s < carData.size; s++) {
           game_state.board[carData.pos.y][carData.pos.x + s] = 0;
         }
 
-        for (s = 0; s < carData.size; s++) {
+        for (let s = 0; s < carData.size; s++) {
           game_state.board[carData.pos.y][drag_cell_x + s] = index + 1;
         }
         car.style.left = `${drag_cell_x * CELL_SIZE}px`;
@@ -233,17 +339,20 @@ function drawCars() {
         drag_y = cap_drag(drag_y, "v", index);
         let drag_cell_y = Math.round(drag_y / CELL_SIZE);
 
-        for (s = 0; s < carData.size; s++) {
+        for (let s = 0; s < carData.size; s++) {
           game_state.board[carData.pos.y + s][carData.pos.x] = 0;
         }
 
-        for (s = 0; s < carData.size; s++) {
+        for (let s = 0; s < carData.size; s++) {
           game_state.board[drag_cell_y + s][carData.pos.x] = index + 1;
         }
         car.style.top = `${drag_cell_y * CELL_SIZE}px`;
 
         carData.pos.y = drag_cell_y;
       }
+
+      drag_state.hard_stop = false;
+      check_for_victory();
     });
 
     board.appendChild(car);
@@ -252,8 +361,12 @@ function drawCars() {
 
 // Loads a game based on the difficulty passed
 function loadGame(difficulty) {
+  console.log("AIPHUGBE");
+
   game_state.board_size = difficulty.size;
   game_state.cars = difficulty.cars;
+  game_state.finish = difficulty.exit;
+  game_state.board = [];
 
   createBoard();
 
