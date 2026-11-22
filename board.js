@@ -41,7 +41,7 @@ const EASY = {
   ],
 };
 
-const CELL_SIZE = 50;
+var CELL_SIZE = 50;
 
 const game_state = {
   board_size: 0,
@@ -69,9 +69,9 @@ const drag_state = {
 };
 
 // Creates a board of size nxn
-function createBoard() {
+function createBoard(boardID) {
   const n = game_state.board_size;
-  const board = document.getElementById("board");
+  const board = document.getElementById(boardID);
 
   // Delete all childs
   board.replaceChildren();
@@ -88,38 +88,31 @@ function createBoard() {
 
       const cell = document.createElement("div");
       cell.classList.add("cell");
+      cell.style.width = `${CELL_SIZE}px`;
+      cell.style.height = `${CELL_SIZE}px`;
+
       row.appendChild(cell);
     }
   }
+
+  board.style.borderWidth = `${CELL_SIZE}px`;
 
   // Create the exit
 
   const exit = document.createElement("div");
   exit.id = "exit";
+  exit.style.width = `${CELL_SIZE}px`;
+  exit.style.height = `${CELL_SIZE}px`;
 
   if (game_state.cars[0].type == "h") {
-    exit.style.left = `${game_state.finish.x * CELL_SIZE + CELL_SIZE / 2}px`;
+    exit.style.left = `${game_state.finish.x * CELL_SIZE + CELL_SIZE + 1}px`;
     exit.style.top = `${game_state.finish.y * CELL_SIZE}px`;
-  } else if (game_state.cars[1].type == "v") {
-    exit.style.top = `${game_state.finish.y * CELL_SIZE + CELL_SIZE / 2}px`;
+  } else if (game_state.cars[0].type == "v") {
+    exit.style.top = `${game_state.finish.y * CELL_SIZE + CELL_SIZE}px`;
     exit.style.left = `${game_state.finish.x * CELL_SIZE}px`;
   }
 
   board.appendChild(exit);
-}
-
-// Updates the game state on the client.
-// Draws all the cars and handles dragging
-function updateGameState() {
-  const board = document.getElementById("board");
-
-  for (let i = 0; i < board_state.length; i++) {
-    for (let j = 0; j < board_state[i].length; j++) {
-      if (board_state[i][j] != 0) {
-        const cell = board.childNodes[i].childNodes[j];
-      }
-    }
-  }
 }
 
 // Checks if the player has won
@@ -133,7 +126,7 @@ function check_for_victory() {
       break;
     }
   }
-  if (!inFinish) return false;
+  if (!inFinish) return;
 
   inFinish = false;
   for (let s = 0; s < car.size; s++) {
@@ -142,8 +135,8 @@ function check_for_victory() {
       break;
     }
   }
-  if (!inFinish) return false;
-  alert("ONE");
+  if (!inFinish) return;
+  alert("You have WON !!!");
 }
 
 // function to cap the drag to prevent going off the board or passing over other cars
@@ -250,11 +243,12 @@ function cap_drag(drag, orientation, carIndex) {
 
   return drag;
 }
+const CAR_SCALE_OFFSET = 4;
 
 // Draws the cars on the screen also handles their dragging
-function drawCars() {
+function drawCars(boardID, canDrag) {
   const carList = game_state.cars;
-  const board = document.getElementById("board");
+  const board = document.getElementById(boardID);
 
   for (let i = 0; i < carList.length; i++) {
     const carData = carList[i];
@@ -271,18 +265,23 @@ function drawCars() {
     car.classList.add("car");
 
     if (carData.type == "h") {
-      car.style.width = `${CELL_SIZE * carData.size}px`;
-      car.style.height = `${CELL_SIZE}px`;
+      car.style.width = `${CELL_SIZE * carData.size - CAR_SCALE_OFFSET}px`;
+      car.style.height = `${CELL_SIZE - CAR_SCALE_OFFSET}px`;
     } else if (carData.type == "v") {
-      car.style.width = `${CELL_SIZE}px`;
-      car.style.height = `${CELL_SIZE * carData.size}px`;
+      car.style.width = `${CELL_SIZE - CAR_SCALE_OFFSET}px`;
+      car.style.height = `${CELL_SIZE * carData.size - CAR_SCALE_OFFSET}px`;
     }
 
     car.style.backgroundColor = carData.color;
-    car.style.top = `${carData.pos.y * CELL_SIZE}px`;
-    car.style.left = `${carData.pos.x * CELL_SIZE}px`;
+    car.style.top = `${carData.pos.y * CELL_SIZE + CAR_SCALE_OFFSET / 2}px`;
+    car.style.left = `${carData.pos.x * CELL_SIZE + CAR_SCALE_OFFSET / 2}px`;
 
     const index_copy = i;
+
+    if (!canDrag) {
+      board.appendChild(car);
+      continue;
+    }
 
     car.addEventListener("pointerdown", (e, index = index_copy) => {
       drag_state.start_x = e.x;
@@ -306,12 +305,12 @@ function drawCars() {
         let drag_x = e.x - drag_state.start_x + drag_state.original_x;
         drag_x = cap_drag(drag_x, "h", index);
 
-        car.style.left = `${drag_x}px`;
+        car.style.left = `${drag_x + CAR_SCALE_OFFSET / 2}px`;
       } else if (carData.type == "v") {
         let drag_y = e.y - drag_state.start_y + drag_state.original_y;
         drag_y = cap_drag(drag_y, "v", index);
 
-        car.style.top = `${drag_y}px`;
+        car.style.top = `${drag_y + CAR_SCALE_OFFSET / 2}px`;
       }
     });
 
@@ -331,7 +330,7 @@ function drawCars() {
         for (let s = 0; s < carData.size; s++) {
           game_state.board[carData.pos.y][drag_cell_x + s] = index + 1;
         }
-        car.style.left = `${drag_cell_x * CELL_SIZE}px`;
+        car.style.left = `${drag_cell_x * CELL_SIZE + CAR_SCALE_OFFSET / 2}px`;
 
         carData.pos.x = drag_cell_x;
       } else if (carData.type == "v") {
@@ -346,7 +345,7 @@ function drawCars() {
         for (let s = 0; s < carData.size; s++) {
           game_state.board[drag_cell_y + s][carData.pos.x] = index + 1;
         }
-        car.style.top = `${drag_cell_y * CELL_SIZE}px`;
+        car.style.top = `${drag_cell_y * CELL_SIZE + CAR_SCALE_OFFSET / 2}px`;
 
         carData.pos.y = drag_cell_y;
       }
@@ -360,15 +359,20 @@ function drawCars() {
 }
 
 // Loads a game based on the difficulty passed
-function loadGame(difficulty) {
-  console.log("AIPHUGBE");
-
+function loadGame(
+  difficulty,
+  cellSize = CELL_SIZE,
+  canDrag = true,
+  boardID = "board",
+) {
   game_state.board_size = difficulty.size;
-  game_state.cars = difficulty.cars;
+  game_state.cars = structuredClone(difficulty.cars);
   game_state.finish = difficulty.exit;
   game_state.board = [];
 
-  createBoard();
+  CELL_SIZE = cellSize;
 
-  drawCars();
+  createBoard(boardID);
+
+  drawCars(boardID, canDrag);
 }

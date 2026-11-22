@@ -4,11 +4,33 @@
     <title>Hypermedia Project 2</title>
     <link href="style.css" rel="stylesheet" />
     <script src="script.js"></script>
+    <script src="board.js"></script>
   </head>
 
-  <body>
+  <body
+    onload="
+      loadGame(EASY, 25, false, 'boardEasy');
+      loadGame(EASY, 25, false, 'boardMedium');
+      loadGame(EASY, 25, false, 'boardHard');
+    "
+  >
     <button>
-      <a href="easy.html">Easy</a>
+      <a href="easy.html">
+        Easy
+        <div class="board" id="boardEasy" draggable="false"></div>
+      </a>
+    </button>
+    <button>
+      <a href="medium.html">
+        Medium
+        <div class="board" id="boardMedium" draggable="false"></div>
+      </a>
+    </button>
+    <button>
+      <a href="hard.html">
+        Hard
+        <div class="board" id="boardHard" draggable="false"></div>
+      </a>
     </button>
   </body>
 </html>
