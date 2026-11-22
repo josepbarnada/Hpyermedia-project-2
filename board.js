@@ -14,9 +14,9 @@
 //
 // The first car is the one that needs to reach the exit.
 const EASY = {
-  size: 7,
+  size: 6,
   exit: {
-    x: 6,
+    x: 5,
     y: 2,
   },
   cars: [
@@ -33,10 +33,28 @@ const EASY = {
       type: "v",
       pos: {
         x: 3,
-        y: 1,
+        y: 0,
       },
-      size: 1,
+      size: 3,
       color: "yellow",
+    },
+    {
+      type: "h",
+      pos: {
+        x: 3,
+        y: 3,
+      },
+      size: 3,
+      color: "orange",
+    },
+    {
+      type: "v",
+      pos: {
+        x: 0,
+        y: 3,
+      },
+      size: 3,
+      color: "green",
     },
   ],
 };
@@ -67,6 +85,13 @@ const drag_state = {
   drag_index: -1,
 };
 var cellSize = 50;
+
+function updateMoves() {
+  try {
+    const moveText = document.getElementById("moveCount");
+    moveText.innerText = `Moves: ${game_state.moves}`;
+  } catch { }
+}
 
 // Creates a board of size nxn
 function createBoard(boardID) {
@@ -283,6 +308,10 @@ function createCars(boardID, canDrag) {
 
       car.setPointerCapture(e.pointerId);
 
+      game_state.moves += 1;
+
+      updateMoves();
+
       e.preventDefault();
     });
 
@@ -339,12 +368,6 @@ function createCars(boardID, canDrag) {
         carData.pos.y = drag_cell_y;
       }
 
-      game_state.moves += 1;
-      console.log(game_state.moves);
-
-      const moveText = document.getElementById("moveCount");
-      moveText.innerText = `Moves: ${game_state.moves}`;
-
       drag_state.hard_stop = false;
       check_for_victory();
     });
@@ -360,6 +383,8 @@ function resetGameState(difficulty) {
   game_state.exit = difficulty.exit;
   game_state.board = [];
   game_state.moves = 0;
+
+  updateMoves();
 }
 
 // Loads a game based on the difficulty passed
