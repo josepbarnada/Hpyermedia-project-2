@@ -58,6 +58,44 @@ const EASY = {
     },
   ],
 };
+
+
+const MEDIUM = {
+  size: 6,
+  exit: { x: 5, y: 2 },
+  cars: [
+    { type: "h", pos: { x: 0, y: 2 }, size: 2, color: "red" },
+    { type: "v", pos: { x: 4, y: 0 }, size: 3, color: "magenta" },
+    { type: "v", pos: { x: 3, y: 0 }, size: 2, color: "blue" },
+    { type: "h", pos: { x: 2, y: 3 }, size: 2, color: "orange" },
+    { type: "v", pos: { x: 1, y: 3 }, size: 2, color: "yellow" },
+    { type: "h", pos: { x: 3, y: 4 }, size: 2, color: "cyan" },
+    { type: "v", pos: { x: 5, y: 3 }, size: 3, color: "gray" },
+    { type: "v", pos: { x: 0, y: 3 }, size: 2, color: "teal" },
+    { type: "v", pos: { x: 2, y: 0 }, size: 3, color: "purple" },
+  ],
+};
+
+
+const HARD = {
+  size: 6,
+  exit: { x: 5, y: 2 },
+  cars: [
+    { type: "h", pos: { x: 0, y: 2 }, size: 2, color: "red" },
+    { type: "v", pos: { x: 4, y: 2 }, size: 2, color: "brown" },
+    { type: "v", pos: { x: 2, y: 1 }, size: 3, color: "cyan" },
+    { type: "h", pos: { x: 4, y: 4 }, size: 2, color: "green" },
+    { type: "h", pos: { x: 3, y: 0 }, size: 3, color: "pink" },
+    { type: "v", pos: { x: 3, y: 1 }, size: 2, color: "purple" },
+    { type: "h", pos: { x: 2, y: 5 }, size: 3, color: "magenta" },
+    { type: "v", pos: { x: 0, y: 4 }, size: 2, color: "teal" },
+    { type: "h", pos: { x: 0, y: 0 }, size: 2, color: "orange" },
+    { type: "v", pos: { x: 5, y: 1 }, size: 3, color: "blue" },
+  ],
+};
+
+
+
 const CAR_SCALE_OFFSET = 4;
 
 const game_state = {
@@ -161,98 +199,51 @@ function check_for_victory() {
     }
   }
   if (!inFinish) return;
-  alert("You have WON !!!");
+  document.getElementById("finalMoves").innerText =
+  "You completed the level in " + game_state.moves + " moves!";
+  document.getElementById("victoryScreen").style.display = "flex";
 }
 
 // function to cap the drag to prevent going off the board or passing over other cars
 function cap_drag(drag, orientation, carIndex) {
-  let car = game_state.cars[carIndex];
-  let board = game_state.board;
-
-  if (drag < 0) {
-    drag = 0;
-  } else if (drag > (game_state.board_size - car.size) * cellSize) {
-    drag = (game_state.board_size - car.size) * cellSize;
-  }
+  const car = game_state.cars[carIndex];
+  const board = game_state.board;
+  const n = game_state.board_size;
 
   if (orientation == "h") {
-    // This handles going through another car
-    let target_cell_x = Math.floor(drag / cellSize);
-    let end_target_cell_x = Math.ceil(drag / cellSize) + car.size;
+    const y = car.pos.y;
 
-    const step = car.pos.x <= target_cell_x ? 1 : -1;
-
-    let blockedCell = -1;
-    for (let i = car.pos.x; i != target_cell_x + step; i += step) {
-      if (board[car.pos.y][i] != 0 && board[car.pos.y][i] != carIndex + 1) {
-        blockedCell = i;
-        if (car.pos.x < target_cell_x) {
-          target_cell_x -= car.size;
-        }
-        break;
-      }
+    // Fins on pot anar cap a l'esquerra
+    let min = car.pos.x;
+    while (min > 0 && board[y][min - 1] == 0) {
+      min--;
     }
 
-    if (blockedCell != -1) {
-      if (car.pos.x > target_cell_x) {
-        drag = blockedCell * cellSize + cellSize;
-      } else {
-        drag = blockedCell * cellSize - car.size * cellSize;
-      }
-    }
-    // This handles ending up on top of another car
-    for (let i = target_cell_x; i < end_target_cell_x; i++) {
-      if (board[car.pos.y][i] != 0 && board[car.pos.y][i] != carIndex + 1) {
-        blockedCell = i;
-        break;
-      }
-    }
-    if (blockedCell != -1) {
-      if (car.pos.x > target_cell_x) {
-        drag = blockedCell * cellSize + cellSize;
-      } else {
-        drag = blockedCell * cellSize - car.size * cellSize;
-      }
-    }
-  } else if (orientation == "v") {
-    // This handles going through another car
-    let target_cell_y = Math.floor(drag / cellSize);
-    let end_target_cell_y = Math.ceil(drag / cellSize) + car.size;
-
-    const step = car.pos.y <= target_cell_y ? 1 : -1;
-
-    let blockedCell = -1;
-    for (let i = car.pos.y; i != target_cell_y + step; i += step) {
-      if (board[i][car.pos.x] != 0 && board[i][car.pos.x] != carIndex + 1) {
-        blockedCell = i;
-        if (car.pos.y < target_cell_y) {
-          target_cell_y -= car.size;
-        }
-        break;
-      }
+    // Fins on pot anar cap a la dreta
+    let max = car.pos.x;
+    while (max + car.size < n && board[y][max + car.size] == 0) {
+      max++;
     }
 
-    if (blockedCell != -1) {
-      if (car.pos.y > target_cell_y) {
-        drag = blockedCell * cellSize + cellSize;
-      } else {
-        drag = blockedCell * cellSize - car.size * cellSize;
-      }
+    if (drag < min * cellSize) drag = min * cellSize;
+    if (drag > max * cellSize) drag = max * cellSize;
+  } else {
+    const x = car.pos.x;
+
+    // Fins on pot anar cap amunt
+    let min = car.pos.y;
+    while (min > 0 && board[min - 1][x] == 0) {
+      min--;
     }
-    // This handles ending up on top of another car
-    for (let i = target_cell_y; i < end_target_cell_y; i++) {
-      if (board[i][car.pos.x] != 0 && board[i][car.pos.x] != carIndex + 1) {
-        blockedCell = i;
-        break;
-      }
+
+    // Fins on pot anar cap avall
+    let max = car.pos.y;
+    while (max + car.size < n && board[max + car.size][x] == 0) {
+      max++;
     }
-    if (blockedCell != -1) {
-      if (car.pos.y > target_cell_y) {
-        drag = blockedCell * cellSize + cellSize;
-      } else {
-        drag = blockedCell * cellSize - car.size * cellSize;
-      }
-    }
+
+    if (drag < min * cellSize) drag = min * cellSize;
+    if (drag > max * cellSize) drag = max * cellSize;
   }
 
   return drag;
@@ -340,7 +331,7 @@ function createCars(boardID, canDrag) {
         let drag_x = e.x - drag_state.start_x + drag_state.original_x;
         drag_x = cap_drag(drag_x, "h", index);
         let drag_cell_x = Math.round(drag_x / cellSize);
-
+          
         for (let s = 0; s < carData.size; s++) {
           game_state.board[carData.pos.y][carData.pos.x + s] = 0;
         }

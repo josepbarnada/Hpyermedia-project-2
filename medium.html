@@ -1,19 +1,41 @@
-<!doctype html>
 
-<html>
-  <head>
-    <title>Hypermedia Project 2 - Easy</title>
-    <script src="board.js" defer></script>
-    <link href="style.css" rel="stylesheet" />
-  </head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rush Hour - Medium</title>
+  <link href="style.css" rel="stylesheet">
+  <script src="board.js" defer></script>
+</head>
+<div id="victoryScreen">
+  <div class="victory-box">
+    <h2>YOU WON!</h2>
+    <p>Congratulations! You cleared the traffic!</p>
+    <p id="finalMoves"></p>
 
-  <body onload="loadGame(EASY)">
+    <button onclick="window.location.reload()">Play Again</button>
+    <button onclick="window.location.href='index.html'">Main Menu</button>
+  </div>
+</div>
+<body class="game-page" onload="loadGame(MEDIUM)">
+
+  <header class="game-header">
+    <h1>RUSH HOUR</h1>
+    <p>Medium level</p>
+  </header>
+
+  <main class="game-container">
     <div id="menu">
-      <button onclick="loadGame(EASY)">Reset</button>
-      <button>
-        <a href="index.html">Go Back</a>
-      </button>
+      <button onclick="loadGame(MEDIUM)">Reset</button>
+      <button onclick="window.location.href='index.html'">Go Back</button>
     </div>
+
+    <p id="moveCount">Moves: 0</p>
+
     <div class="board" id="board"></div>
-  </body>
+  </main>
+
+</body>
 </html>
+

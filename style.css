@@ -1,13 +1,117 @@
-.body {
-  background-color: white;
+
+/* General page style */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #101426;
+  color: white;
 }
 
-.board {
-  border-color: black;
-  border-style: solid;
+/* Main menu header */
+.main-header {
+  text-align: center;
+  padding: 35px 20px 15px;
+}
 
+.main-header h1 {
+  font-size: 48px;
+  letter-spacing: 8px;
+  color: #58d9ff;
+  margin-bottom: 5px;
+}
+
+.subtitle {
+  color: #aab3d1;
+  font-size: 17px;
+}
+
+/* Main content */
+.home-container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 20px;
+}
+
+.welcome {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.welcome h2 {
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+
+.welcome p {
+  color: #aab3d1;
+}
+
+/* Level cards */
+.levels {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  flex-wrap: wrap;
+}
+
+.level-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #1c2540;
+  border: 2px solid #303c60;
+  border-radius: 15px;
+  padding: 25px;
+  text-decoration: none;
+  color: white;
+  transition: 0.3s;
+}
+
+.level-card:hover {
+  border-color: #58d9ff;
+  background-color: #253252;
+}
+
+.level-card h3 {
+  font-size: 25px;
+  margin: 0 0 8px;
+}
+
+.level-card p {
+  color: #aab3d1;
+  margin-bottom: 20px;
+}
+
+/* Level colors */
+.easy-card h3 {
+  color: #45e6a5;
+}
+
+.medium-card h3 {
+  color: #ffca58;
+}
+
+.hard-card h3 {
+  color: #ff668c;
+}
+
+.play-text {
+  margin-top: 20px;
+  padding: 10px 25px;
+  background-color: #397fda;
+  border-radius: 7px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+/* Game board */
+.board {
+  border-color: #050814;
+  border-style: solid;
   position: relative;
   width: fit-content;
+  margin: auto;
+  background-color: #e8edf5;
 }
 
 .row {
@@ -17,18 +121,201 @@
 }
 
 .cell {
-  outline: 1px solid gray;
-  content: "test";
+  outline: 1px solid #8993a5;
 }
+
+/* Car design */
 
 .car {
   position: absolute;
   z-index: 20;
+  box-sizing: border-box;
+  border-radius: 9px;
+
+  border: 1px solid rgba(255, 255, 255, 0.65);
+
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.38),
+    rgba(255, 255, 255, 0.05) 45%,
+    rgba(0, 0, 0, 0.20)
+  );
+
+  box-shadow:
+    0 4px 7px rgba(0, 0, 0, 0.35),
+    inset 0 1px 3px rgba(255, 255, 255, 0.3);
+
+  cursor: grab;
+
+  transition: filter 0.2s, box-shadow 0.2s;
 }
 
+.car:hover {
+  filter: brightness(1.15);
+  box-shadow:
+    0 6px 12px rgba(0, 0, 0, 0.45),
+    inset 0 1px 3px rgba(255, 255, 255, 0.4);
+}
+
+.car:active {
+  cursor: grabbing;
+  filter: brightness(1.2);
+  box-shadow:
+    0 8px 15px rgba(0, 0, 0, 0.5),
+    inset 0 1px 4px rgba(255, 255, 255, 0.4);
+}
+
+
 #exit {
-  background-color: white;
+  background-color: #e8edf5;
   position: absolute;
   z-index: 10;
-  border-left: 1px solid gray;
+  border-left: 1px solid #8993a5;
+}
+
+/* Footer */
+.main-footer {
+  text-align: center;
+  padding: 25px;
+  color: #7885a8;
+  font-size: 13px;
+}
+
+/* Game page menu */
+#menu {
+  padding: 20px;
+}
+
+#menu button {
+  padding: 9px 18px;
+  margin-right: 10px;
+  border: none;
+  border-radius: 6px;
+  background-color: #397fda;
+  color: white;
+  cursor: pointer;
+}
+
+#menu button a {
+  color: white;
+  text-decoration: none;
+}
+
+#moveCount {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+
+/* Game screen */
+
+.game-page {
+  min-height: 100vh;
+}
+
+.game-header {
+  text-align: center;
+  padding: 25px;
+}
+
+.game-header h1 {
+  color: #58d9ff;
+  font-size: 36px;
+  letter-spacing: 6px;
+  margin-bottom: 5px;
+}
+
+.game-header p {
+  color: #aab3d1;
+  font-size: 18px;
+}
+
+.game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+#menu {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+#menu button {
+  padding: 12px 24px;
+  border: 1px solid #58d9ff;
+  border-radius: 8px;
+  background-color: #1c2540;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+#menu button:hover {
+  background-color: #397fda;
+}
+
+#moveCount {
+  color: #58d9ff;
+  font-size: 22px;
+  font-weight: bold;
+  margin: 25px;
+}
+
+.game-container .board {
+  margin: 10px auto;
+}
+
+/* Victory screen */
+
+#victoryScreen {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(5, 8, 20, 0.85);
+  z-index: 100;
+  justify-content: center;
+  align-items: center;
+}
+
+.victory-box {
+  background-color: #1c2540;
+  border: 2px solid #58d9ff;
+  border-radius: 18px;
+  padding: 40px;
+  text-align: center;
+  width: 350px;
+  max-width: 80%;
+  box-shadow: 0 0 25px rgba(88, 217, 255, 0.25);
+}
+
+.victory-box h2 {
+  color: #45e6a5;
+  font-size: 36px;
+  margin-top: 0;
+}
+
+.victory-box p {
+  color: #aab3d1;
+  font-size: 17px;
+}
+
+.victory-box button {
+  padding: 12px 20px;
+  margin: 8px 4px;
+  border: none;
+  border-radius: 7px;
+  background-color: #397fda;
+  color: white;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.victory-box button:hover {
+  background-color: #58a5ff;
 }

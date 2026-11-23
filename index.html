@@ -1,36 +1,64 @@
-<!doctype html>
-<html>
+
+<!DOCTYPE html>
+<html lang="en">
   <head>
-    <title>Hypermedia Project 2</title>
-    <link href="style.css" rel="stylesheet" />
-    <script src="script.js"></script>
-    <script src="board.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rush Hour - Choose your level</title>
+    <link href="style.css" rel="stylesheet">
+    <script src="board.js" defer></script>
   </head>
 
-  <body
+  <body class="home-page"
     onload="
       loadGame(EASY, 25, false, 'boardEasy');
-      loadGame(EASY, 25, false, 'boardMedium');
-      loadGame(EASY, 25, false, 'boardHard');
-    "
-  >
-    <button>
-      <a href="easy.html">
-        Easy
-        <div class="board" id="boardEasy" draggable="false"></div>
-      </a>
-    </button>
-    <button>
-      <a href="medium.html">
-        Medium
-        <div class="board" id="boardMedium" draggable="false"></div>
-      </a>
-    </button>
-    <button>
-      <a href="hard.html">
-        Hard
-        <div class="board" id="boardHard" draggable="false"></div>
-      </a>
-    </button>
+      loadGame(MEDIUM, 25, false, 'boardMedium');
+      loadGame(HARD, 25, false, 'boardHard');
+    ">
+
+    <header class="main-header">
+      <h1>RUSH HOUR</h1>
+      <p class="subtitle">The ultimate traffic puzzle</p>
+    </header>
+
+    <main class="home-container">
+      <section class="welcome">
+        <h2>Choose your challenge</h2>
+        <p>
+          Move the cars, clear the traffic and find your way out!
+        </p>
+      </section>
+
+      <section class="levels">
+
+        <a href="easy.html" class="level-card easy-card">
+          <h3>Easy</h3>
+          <p>Perfect to get started</p>
+          <div class="board" id="boardEasy" draggable="false"></div>
+          <span class="play-text">PLAY LEVEL</span>
+        </a>
+
+        <a href="medium.html" class="level-card medium-card">
+          <h3>Medium</h3>
+          <p>Time to think strategically</p>
+          <div class="board" id="boardMedium" draggable="false"></div>
+          <span class="play-text">PLAY LEVEL</span>
+        </a>
+
+        <a href="hard.html" class="level-card hard-card">
+          <h3>Hard</h3>
+          <p>Only for puzzle experts</p>
+          <div class="board" id="boardHard" draggable="false"></div>
+          <span class="play-text">PLAY LEVEL</span>
+        </a>
+
+      </section>
+    </main>
+
+    <footer class="main-footer">
+      <p>RUSH HOUR · Hypermedia Project 2</p>
+    </footer>
+
   </body>
 </html>
+
